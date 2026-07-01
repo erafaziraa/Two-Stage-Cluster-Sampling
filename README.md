@@ -62,7 +62,7 @@ library(readxl)
 data_kuesioner <- read_excel("C:/Users/ACER/Downloads/Estimasi Tingkat Distraksi Digital dalam Aktivitas Pembelajaran Mahasiswa Program Studi Statistika Universitas Mataram Menggunakan Two-Stage Cluster Sampling.xlsx")
 View(data_kuesioner)
 ```
-### Deskripsi Data
+### Pengecekan Data
 ```
 str(data_kuisioner)
 summary(data_kuisioner)
@@ -76,10 +76,10 @@ skor_total <- rowSums(data_kuisioner)
 
 hasil_validitas <- data.frame(
   Item = colnames(data_kuisioner),
-  r_hitung = sapply(data_kuisioner, function(x)
-    cor(x, skor_total, method = "pearson")),
-  p_value = sapply(data_kuisioner, function(x)
-    cor.test(x, skor_total)$p.value)
+  r_hitung = sapply(1:ncol(data_kuisioner), function(i){
+    cor(data_kuisioner[,i],
+        rowSums(data_kuisioner[,-i]))
+  })
 )
 
 r_tabel <- 0.30
@@ -89,7 +89,6 @@ hasil_validitas$Keterangan <- ifelse(
   "Valid",
   "Tidak Valid"
 )
-
 hasil_validitas
 ```
 
@@ -113,26 +112,45 @@ if(alpha >= 0.70){
 }
 ```
 
+### Menghitung Skor Total
+```
+data_kuisioner$Skor_Total <- rowSums(data_kuisioner)
+```
+
+### Statistika Deskriptif
+```
+summary(data_kuisioner$Skor_Total)
+
+mean(data_kuisioner$Skor_Total)
+
+sd(data_kuisioner$Skor_Total)
+
+min(data_kuisioner$Skor_Total)
+
+max(data_kuisioner$Skor_Total)
+```
+
 ### 
 
 ## Hasil dan Pembahasan
 ### Deskripsi Data
+### Hasil Uji Validitas
 | Item | r<sub>hitung</sub> | Keterangan |
 |:----:|-------------------:|:----------:|
-| P1  | 0.6426 | Valid |
-| P2  | 0.7304 | Valid |
-| P3  | 0.4943 | Valid |
-| P4  | 0.6115 | Valid |
-| P5  | 0.4602 | Valid |
-| P6  | 0.7122 | Valid |
-| P7  | 0.6247 | Valid |
-| P8  | 0.6508 | Valid |
-| P9  | 0.7789 | Valid |
-| P10 | 0.6784 | Valid |
-### Hasil Uji Validitas
+| P1  | 0.5492 | Valid |
+| P2  | 0.6508 | Valid |
+| P3  | 0.3783 | Valid |
+| P4  | 0.5097 | Valid |
+| P5  | 0.3500 | Valid |
+| P6  | 0.6052 | Valid |
+| P7  | 0.5267 | Valid |
+| P8  | 0.5657 | Valid |
+| P9  | 0.7154 | Valid |
+| P10 | 0.5933 | Valid |
+### Hasil  Uji Reliabilitas
 | Cronbach's Alpha | Keterangan |
 |-----------------:|:----------:|
-| 0.839 | Reliabel |
-### Hasil  Uji Reliabilitas
+| 0.868 | Reliabel |
+
 
 ###
