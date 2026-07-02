@@ -345,9 +345,9 @@ Head Skor Total (6 Data Pertama)
 | 5  | 35 |
 | 6  | 36 |
 
-Visualisasi distribusi skor total
-![Histogram Skor Total Distraksi Digital](C:/Users/ACER/OneDrive/Pictures/Screenshots/Screenshot 2026-07-02 190927.png)
-PENJELASANN
+#### Visualisasi Distribusi Skor Total
+
+![Histogram Skor Total Distraksi Digital](Histogram%20Skor%20Total.png)
 
 ### Hasil Cleaning Data
 
