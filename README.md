@@ -11,19 +11,20 @@ Penelitian ini bertujuan untuk mengestimasi tingkat distraksi digital dalam akti
 
 Tujuan penelitian ini adalah sebagai berikut:
 
-1. Menjelaskan konsep distraksi digital dalam aktivitas pembelajaran mahasiswa.
-2. Menjelaskan teknik *Two-Stage Cluster Sampling* yang digunakan dalam pengambilan sampel.
-3. Menjelaskan metode estimasi yang digunakan untuk mengestimasi tingkat distraksi digital mahasiswa.
-4. Menjelaskan metode analisis data yang digunakan dalam penelitian.
-5. Mengestimasi tingkat distraksi digital dalam aktivitas pembelajaran mahasiswa Program Studi Statistika Universitas Mataram berdasarkan data hasil kuesioner.
+1. Menggambarkan kondisi tingkat distraksi digital yang dialami mahasiswa Program Studi Statistika Universitas Mataram dalam kegiatan pembelajaran.
+2. Melakukan pengujian validitas dan reliabilitas instrumen yang digunakan untuk mengukur distraksi digital.
+3. Mengimplementasikan desain two-stage cluster sampling sebagai teknik pengambilan sampel penelitian.
+4. Menentukan bobot sampel berdasarkan peluang pemilihan pada setiap tahap dalam proses sampling.
+5. Mengestimasi rerata tingkat distraksi digital mahasiswa menggunakan pendekatan analisis survei berbobot (survey-weighted estimation).
+6. Menilai ketelitian hasil estimasi melalui Standard Error (SE), Confidence Interval (CI), Design Effect (DEFF), dan Relative Standard Error (RSE).
 
 ## Metode Penelitian
 
 Penelitian ini merupakan penelitian kuantitatif dengan metode survei. Data yang digunakan adalah data primer yang diperoleh melalui penyebaran kuesioner kepada mahasiswa Program Studi Statistika Universitas Mataram. Populasi penelitian adalah seluruh mahasiswa aktif Program Studi Statistika Universitas Mataram.
 
-Teknik pengambilan sampel yang digunakan adalah *Two-Stage Cluster Sampling*. Pada tahap pertama, dipilih klaster dari populasi, yaitu berdasarkan angkatan mahasiswa. Selanjutnya, pada tahap kedua dipilih sejumlah mahasiswa dari klaster terpilih menggunakan *Simple Random Sampling*. Data yang telah diperoleh kemudian diuji validitas dan reliabilitas instrumennya sebelum dilakukan analisis.
+Teknik pengambilan sampel yang digunakan adalah Two-Stage Cluster Sampling. Pada tahap pertama, dipilih klaster dari populasi, yaitu berdasarkan angkatan mahasiswa. Selanjutnya, pada tahap kedua dipilih sejumlah mahasiswa dari klaster terpilih menggunakan Simple Random Sampling. Data yang telah diperoleh kemudian diuji validitas dan reliabilitas instrumennya sebelum dilakukan analisis.
 
-Estimasi tingkat distraksi digital dilakukan berdasarkan data hasil kuesioner menggunakan penduga pada *Two-Stage Cluster Sampling*. Selanjutnya, data dianalisis secara deskriptif untuk menggambarkan tingkat distraksi digital mahasiswa, meliputi ukuran pemusatan, ukuran penyebaran, serta penyajian data dalam bentuk tabel dan grafik.
+Estimasi tingkat distraksi digital dilakukan menggunakan pendekatan survey-weighted estimation berdasarkan desain Two-Stage Cluster Sampling. Analisis yang dilakukan meliputi estimasi rata-rata berbobot (weighted mean), serta evaluasi ketelitian estimasi melalui Standard Error (SE), Confidence Interval (CI) 95%, Design Effect (DEFF), dan Relative Standard Error (RSE) sebagai indikator kualitas hasil estimasi.
 
 ## Teknik Pengambilan Sampel
 
@@ -335,7 +336,7 @@ Berdasarkan hasil tersebut, nilai Cronbach’s Alpha sebesar 0.839 menunjukkan b
 ### Hasil Perhitungan dan Distribusi Skor Total
 
 Berdasarkan hasil pengolahan data, diperoleh skor total masing-masing responden yang kemudian digunakan untuk analisis lebih lanjut. Berikut ditampilkan cuplikan data (head data) dan visualisasi distribusi skor total.
-Head Skor Total (6 Data Pertama)
+#### Head Skor Total (6 Data Pertama)
 | No | Skor_Total |
 |:--:|-----------:|
 | 1  | 29 |
@@ -344,12 +345,33 @@ Head Skor Total (6 Data Pertama)
 | 4  | 42 |
 | 5  | 35 |
 | 6  | 36 |
-
 #### Visualisasi Distribusi Skor Total
-
 ![Histogram Skor Total Distraksi Digital](Histogram%20Skor%20Total.png)
 
+Berdasarkan histogram skor total distraksi digital dan enam data pertama, terlihat bahwa skor total distraksi digital mahasiswa berada pada kisaran 25 hingga 50, dengan sebagian besar skor terkonsentrasi pada rentang 35–40. Enam data pertama yaitu 29, 40, 39, 42, 35, dan 36, juga menunjukkan bahwa mayoritas skor berada pada rentang tersebut, sehingga mencerminkan pola yang konsisten dengan distribusi keseluruhan. Kondisi ini menunjukkan bahwa skor total distraksi digital responden cenderung terpusat pada nilai tengah, yang mengindikasikan bahwa sebagian besar mahasiswa memiliki tingkat distraksi digital yang relatif seragam, sedangkan hanya sebagian kecil responden yang memiliki skor lebih rendah maupun lebih tinggi dari rentang mayoritas tersebut.
+
 ### Hasil Cleaning Data
+#### Missing Value
+| Variabel         | Jumlah Missing Value |
+|------------------|---------------------:|
+| Timestamp        | 0 |
+| Nama             | 0 |
+| Kelas            | 0 |
+| Angkatan         | 0 |
+| Jenis Kelamin    | 0 |
+| P1-P10           | 0 |
+
+Berdasarkan hasil pemeriksaan missing value, seluruh variabel memiliki nilai 0 yang menunjukkan bahwa tidak terdapat data yang hilang (missing value) pada dataset. Dengan demikian, setiap variabel memiliki data yang lengkap sehingga seluruh data dapat digunakan dalam proses analisis.
+
+#### Data Duplikat
+| Pemeriksaan | Hasil |
+|-------------|------:|
+| Jumlah Data Duplikat | 0 |
+
+Berdasarkan hasil pemeriksaan data duplikat menggunakan fungsi duplicated(), diperoleh jumlah data duplikat sebanyak 0. Hal ini menunjukkan bahwa tidak terdapat baris data yang memiliki isi yang sama secara keseluruhan pada dataset. Dengan demikian, seluruh data merupakan data yang unik dan dapat digunakan dalam proses analisis tanpa perlu dilakukan penghapusan data duplikat.
+
+#### Outlier
+
 
 ### Hasil Penerapan Two-Stage Cluster Sampling
 Hasil Pembentukan Primary Sampling Unit (PSU)
