@@ -56,20 +56,20 @@ Berdasarkan hasil pemilihan sampel, diperoleh 30 responden yang digunakan sebaga
 
 ## Tahap Analisis Data
 
-### Import Data Kuesioner
+### 1. Import Data Kuesioner
+
+Data hasil kuesioner diimpor ke dalam R sebagai tahap awal sebelum dilakukan pengolahan dan analisis data.
 ```
 library(readxl)
 
 data <- read_excel("C:/Users/ACER/Downloads/Estimasi Tingkat Distraksi Digital dalam Aktivitas Pembelajaran Mahasiswa Program Studi Statistika Universitas Mataram Menggunakan Two-Stage Cluster Sampling (Jawaban).xlsx")
 View(data)
 ```
-### Pengecekan Struktur Data
-```
-str(data)
-summary(data)
-```
-### Uji Validitas & Reliabilitas Instrumen Penelitian
+
+### 2. Uji Validitas & Reliabilitas Instrumen Penelitian
 #### Uji Validitas Instrumen Penelitian
+
+Uji validitas dilakukan untuk mengetahui apakah setiap butir pernyataan mampu mengukur variabel yang diteliti.
 ```
 library(psych)
 
@@ -96,6 +96,8 @@ hasil_validitas
 ```
 
 #### Uji Reliabilitas Instrumen Penelitian
+
+Uji reliabilitas dilakukan untuk mengetahui tingkat konsistensi instrumen penelitian.
 ```
 library(psych)
 
@@ -115,34 +117,51 @@ if (cronbach_alpha >= 0.70) {
 }
 ```
 
-### Menghitung Skor Total
+### 3. Menghitung Skor Total
+
+Perhitungan skor total dilakukan untuk memperoleh skor keseluruhan setiap responden berdasarkan jumlah skor dari seluruh butir pernyataan pada kuesioner.
 ```
 data$Skor_Total <- rowSums(item)
+
+hist(
+  data$Skor_Total,
+  main = "Histogram Skor Total Distraksi Digital",
+  xlab = "Skor Total",
+  ylab = "Frekuensi",
+  col = "skyblue",
+  border = "black"
+)
 ```
 
-### Statistika Deskriptif
+#### Statistika Deskriptif Skor Total
+
+Statistika deskriptif skor total digunakan untuk menggambarkan secara umum karakteristik data tingkat distraksi digital mahasiswa berdasarkan nilai rata-rata, minimum, maksimum, dan sebaran skor total.
 ```
 summary(data$Skor_Total)
-
 mean(data$Skor_Total)
-
 sd(data$Skor_Total)
-
 min(data$Skor_Total)
-
 max(data$Skor_Total)
 ```
 
-### Cleaning Data
+### 4. Cleaning Data
+
+Cleaning data dilakukan untuk memeriksa keberadaan missing value, data duplikat, dan outlier sebelum dilakukan analisis lebih lanjut.
 #### Cek Missing Value
+
+Pemeriksaan missing value dilakukan untuk mengetahui apakah terdapat data yang hilang pada setiap variabel.
 ```
 colSums(is.na(data))
 ```
 #### Cek Data Duplikat
+
+Pemeriksaan data duplikat dilakukan untuk memastikan tidak terdapat data yang tercatat lebih dari satu kali.
 ```
 sum(duplicated(data))
 ```
 #### Cek Outlier
+
+Pemeriksaan outlier dilakukan untuk mengidentifikasi data yang memiliki nilai ekstrem sehingga dapat diketahui pengaruhnya terhadap hasil analisis.
 ```
 boxplot(
   data$Skor_Total,
@@ -151,35 +170,67 @@ boxplot(
 )
 boxplot.stats(data$Skor_Total)$out
 ```
-### Penerapan Two-Stage Cluster Sampling
-#### Pembentukan Variabel Cluster
+### 5. Penerapan Two-Stage Cluster Sampling
+
+Penerapan Two-Stage Cluster Sampling dilakukan untuk membentuk desain survei sesuai dengan proses pengambilan sampel dua tahap.
+#### Pembentukan Primary Sampling Unit (PSU) & Secondary Sampling Unit (SSU)
+
+Pembentukan PSU & SSU dilakukan untuk menentukan cluster yang menjadi unit sampling tahap pertama serta untuk mengidentifikasi unit sampling tahap kedua pada setiap cluster yang terpilih.
 ```
+# Primary Sampling Unit (PSU)
 data$Cluster <- paste(
   data$Angkatan,
   data$Kelas,
   sep = "_"
 )
-
 table(data$Cluster)
+
+# Secondary Sampling Unit (SSU)
+data$SSU <- ave(
+  seq_len(nrow(data)),
+  data$Cluster,
+  FUN = seq_along
+)
+data$SSU <- as.numeric(data$SSU)
+table(data$Cluster, data$SSU)
 ```
 
-#### Response Rate
-```
-jumlah_sampel <- 30
-jumlah_responden <- nrow(data)
-response_rate <- (jumlah_responden / jumlah_sampel) * 100
-cat("Response Rate =", response_rate, "%")
-```
 #### Pembobotan Sampel
+
+Pembobotan sampel dilakukan berdasarkan peluang pemilihan pada setiap tahap pengambilan sampel untuk memperoleh bobot masing-masing responden.
 ```
+# Tahap pertama
+M <- 6      # jumlah cluster populasi
+m <- 2      # jumlah cluster yang dipilih
+
+P1 <- m/M
+
+# Tahap kedua
+N2023 <- 18
+N2024 <- 26
+
+n2023 <- 11
+n2024 <- 19
+
+P2_2023 <- n2023/N2023
+P2_2024 <- n2024/N2024
+
+# Bobot
+Weight2023 <- 1/(P1 * P2_2023)
+Weight2024 <- 1/(P1 * P2_2024)
+
+# Menambahkan bobot ke data
 data$Bobot <- ifelse(
   data$Cluster == "2023_A",
-  18/11,
-  26/19
+  Weight2023,
+  Weight2024
 )
+
 table(data$Cluster, data$Bobot)
 ```
 #### Pembentukan Desain Survei
+
+Pembentukan desain survei dilakukan untuk mendefinisikan struktur sampling yang digunakan dalam proses estimasi menggunakan package survey.
 ```
 library(survey)
 
@@ -191,21 +242,31 @@ desain <- svydesign(
 
 desain
 ```
-### Estimasi Rata-rata
+### 6. Estimasi Rata-rata
+
+Estimasi rata-rata dilakukan untuk memperkirakan nilai rata-rata populasi berdasarkan data sampel yang diperoleh.
 ```
 estimasi <- svymean(~Skor_Total, desain)
 estimasi
 ```
-### Evaluasi Hasil Estimasi
+### 7. Evaluasi Hasil Estimasi
+
+Evaluasi hasil estimasi dilakukan untuk menilai tingkat ketelitian dan keandalan hasil estimasi yang diperoleh dari sampel terhadap parameter populasi.
 #### Standard Error
+
+Standard error digunakan untuk mengukur tingkat ketidakpastian dari hasil estimasi rata-rata yang diperoleh dari sampel.
 ```
 SE(estimasi)
 ```
 #### Interval Kepercayaan 95%
+
+Interval kepercayaan 95% digunakan untuk menunjukkan rentang nilai yang diperkirakan mencakup rata-rata populasi sebenarnya dengan tingkat kepercayaan 95%.
 ```
 confint(estimasi)
 ```
 #### Design Effect (DEFF)
+
+Design effect digunakan untuk mengukur seberapa besar pengaruh desain sampling kompleks terhadap varians estimasi dibandingkan dengan simple random sampling.
 ```
 svymean(
   ~Skor_Total,
@@ -214,6 +275,8 @@ svymean(
 )
 ```
 #### Relative Standard Error (RSE)
+
+Relative Standard Error digunakan untuk menyatakan tingkat presisi estimasi dalam bentuk persentase terhadap nilai rata-rata estimasi.
 ```
 mean_est <- coef(estimasi)
 
@@ -231,6 +294,8 @@ if (RSE < 25) {
 }
 ```
 ### Interpretasi Tingkat Distraksi Digital
+
+Interpretasi Tingkat Distraksi Digital dilakukan untuk mengubah hasil estimasi rata-rata ke dalam skala Likert (1–5) sehingga lebih mudah diinterpretasikan dalam konteks tingkat distraksi digital mahasiswa.
 ```
 # Mengubah hasil estimasi dari skala 10–50 ke skala Likert 1–5
 mean_est_likert <- as.numeric(mean_est) / ncol(item)
@@ -242,8 +307,9 @@ cat("Estimasi rata-rata (Skala 1-5) =", round(mean_est_likert, 3), "\n")
 
 
 ## Hasil dan Pembahasan
-### Deskripsi Data
 ### Hasil Uji Validitas
+
+Berdasarkan hasil pengujian, diperoleh hasil uji validitas sebagai berikut.
 | Item | r<sub>hitung</sub> | Keterangan |
 |:----:|-------------------:|:----------:|
 | P1  | 0.5385 | Valid |
@@ -256,10 +322,29 @@ cat("Estimasi rata-rata (Skala 1-5) =", round(mean_est_likert, 3), "\n")
 | P8  | 0.5560 | Valid |
 | P9  | 0.7078 | Valid |
 | P10 | 0.5835 | Valid |
+
+Berdasarkan hasil uji validitas tersebut, seluruh item pernyataan (P1–P10) memiliki nilai r_hitung lebih dari 0.3, sehingga seluruh item dinyatakan valid. Nilai 0.3 merupakan nilai batas teoritis (rule of thumb) yang umum digunakan dalam penelitian untuk menunjukkan bahwa suatu item memiliki korelasi yang cukup dengan skor total, sehingga dianggap layak dalam mengukur variabel yang diteliti. Dengan demikian, seluruh butir pernyataan dapat digunakan untuk analisis selanjutnya.
 ### Hasil  Uji Reliabilitas
+
+Uji reliabilitas dilakukan untuk mengetahui tingkat konsistensi internal dari instrumen penelitian dalam mengukur variabel yang sama. Berdasarkan hasil pengujian, diperoleh nilai Cronbach’s Alpha sebagai berikut.
 | Cronbach's Alpha | Keterangan |
 |-----------------:|:----------:|
 | 0.839 | Reliabel |
 
+Berdasarkan hasil tersebut, nilai Cronbach’s Alpha sebesar 0.839 menunjukkan bahwa instrumen penelitian memiliki tingkat konsistensi yang tinggi. Oleh karena itu, seluruh item pernyataan dinyatakan reliabel dan layak digunakan untuk analisis lebih lanjut.
 
-###
+### Hasil Perhitungan dan Distribusi Skor Total
+
+Berdasarkan hasil pengolahan data, diperoleh skor total masing-masing responden yang kemudian digunakan untuk analisis lebih lanjut. Berikut ditampilkan cuplikan data (head data) dan visualisasi distribusi skor total.
+Head Skor Total (6 Data Pertama)
+| No | Skor_Total |
+|:--:|-----------:|
+| 1  | 29 |
+| 2  | 40 |
+| 3  | 39 |
+| 4  | 42 |
+| 5  | 35 |
+| 6  | 36 |
+
+Visualisasi distribusi skor total
+![Histogram Skor Total Distraksi Digital](C:/Users/ACER/OneDrive/Pictures/Screenshots/Screenshot 2026-07-02 190927.png)
