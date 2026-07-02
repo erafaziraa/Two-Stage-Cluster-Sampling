@@ -59,26 +59,28 @@ Berdasarkan hasil pemilihan sampel, diperoleh 30 responden yang digunakan sebaga
 ### Import Data Kuesioner
 ```
 library(readxl)
-data_kuesioner <- read_excel("C:/Users/ACER/Downloads/Estimasi Tingkat Distraksi Digital dalam Aktivitas Pembelajaran Mahasiswa Program Studi Statistika Universitas Mataram Menggunakan Two-Stage Cluster Sampling.xlsx")
-View(data_kuesioner)
-```
-### Pengecekan Data
-```
-str(data_kuisioner)
-summary(data_kuisioner)
-```
 
-### Uji Validitas Instrumen Penelitian
+data <- read_excel("C:/Users/ACER/Downloads/Estimasi Tingkat Distraksi Digital dalam Aktivitas Pembelajaran Mahasiswa Program Studi Statistika Universitas Mataram Menggunakan Two-Stage Cluster Sampling (Jawaban).xlsx")
+View(data)
+```
+### Pengecekan Struktur Data
+```
+str(data)
+summary(data)
+```
+### Uji Validitas & Reliabilitas Instrumen Penelitian
+#### Uji Validitas Instrumen Penelitian
 ```
 library(psych)
 
-skor_total <- rowSums(data_kuisioner)
-
 hasil_validitas <- data.frame(
-  Item = colnames(data_kuisioner),
-  r_hitung = sapply(1:ncol(data_kuisioner), function(i){
-    cor(data_kuisioner[,i],
-        rowSums(data_kuisioner[,-i]))
+  Item = colnames(item),
+  r_hitung = sapply(1:ncol(item), function(i){
+    cor(
+      item[, i],
+      rowSums(item[, -i]),
+      use = "complete.obs"
+    )
   })
 )
 
@@ -89,23 +91,24 @@ hasil_validitas$Keterangan <- ifelse(
   "Valid",
   "Tidak Valid"
 )
+
 hasil_validitas
 ```
 
-### Uji Reliabilitas Instrumen Penelitian
+#### Uji Reliabilitas Instrumen Penelitian
 ```
 library(psych)
 
-# Uji reliabilitas
-hasil <- alpha(data_kuisioner)
+# Menghitung Cronbach's Alpha
+hasil_reliabilitas <- alpha(item)
 
 # Menampilkan nilai Cronbach's Alpha
-alpha <- hasil$total$raw_alpha
+cronbach_alpha <- hasil_reliabilitas$total$raw_alpha
 
-cat("Nilai Cronbach's Alpha =", round(alpha, 3), "\n")
+cat("Nilai Cronbach's Alpha =", round(cronbach_alpha, 3), "\n")
 
 # Memberikan keterangan
-if(alpha >= 0.70){
+if (cronbach_alpha >= 0.70) {
   cat("Keterangan : Instrumen Reliabel\n")
 } else {
   cat("Keterangan : Instrumen Tidak Reliabel\n")
@@ -114,23 +117,129 @@ if(alpha >= 0.70){
 
 ### Menghitung Skor Total
 ```
-data_kuisioner$Skor_Total <- rowSums(data_kuisioner)
+data$Skor_Total <- rowSums(item)
 ```
 
 ### Statistika Deskriptif
 ```
-summary(data_kuisioner$Skor_Total)
+summary(data$Skor_Total)
 
-mean(data_kuisioner$Skor_Total)
+mean(data$Skor_Total)
 
-sd(data_kuisioner$Skor_Total)
+sd(data$Skor_Total)
 
-min(data_kuisioner$Skor_Total)
+min(data$Skor_Total)
 
-max(data_kuisioner$Skor_Total)
+max(data$Skor_Total)
 ```
 
-### 
+### Cleaning Data
+#### Cek Missing Value
+```
+colSums(is.na(data))
+```
+#### Cek Data Duplikat
+```
+sum(duplicated(data))
+```
+#### Cek Outlier
+```
+boxplot(
+  data$Skor_Total,
+  main = "Boxplot Skor Total Distraksi Digital",
+  ylab = "Skor Total"
+)
+boxplot.stats(data$Skor_Total)$out
+```
+### Penerapan Two-Stage Cluster Sampling
+#### Pembentukan Variabel Cluster
+```
+data$Cluster <- paste(
+  data$Angkatan,
+  data$Kelas,
+  sep = "_"
+)
+
+table(data$Cluster)
+```
+
+#### Response Rate
+```
+jumlah_sampel <- 30
+jumlah_responden <- nrow(data)
+response_rate <- (jumlah_responden / jumlah_sampel) * 100
+cat("Response Rate =", response_rate, "%")
+```
+#### Pembobotan Sampel
+```
+data$Bobot <- ifelse(
+  data$Cluster == "2023_A",
+  18/11,
+  26/19
+)
+table(data$Cluster, data$Bobot)
+```
+#### Pembentukan Desain Survei
+```
+library(survey)
+
+desain <- svydesign(
+  id = ~Cluster,
+  weights = ~Bobot,
+  data = data
+)
+
+desain
+```
+### Estimasi Rata-rata
+```
+estimasi <- svymean(~Skor_Total, desain)
+estimasi
+```
+### Evaluasi Hasil Estimasi
+#### Standard Error
+```
+SE(estimasi)
+```
+#### Interval Kepercayaan 95%
+```
+confint(estimasi)
+```
+#### Design Effect (DEFF)
+```
+svymean(
+  ~Skor_Total,
+  desain,
+  deff = TRUE
+)
+```
+#### Relative Standard Error (RSE)
+```
+mean_est <- coef(estimasi)
+
+se_est <- SE(estimasi)
+
+RSE <- (se_est / mean_est) * 100
+
+RSE
+if (RSE < 25) {
+  cat("Keterangan: Estimasi layak digunakan")
+} else if (RSE < 50) {
+  cat("Keterangan: Estimasi perlu digunakan dengan hati-hati")
+} else {
+  cat("Keterangan: Estimasi kurang andal")
+}
+```
+### Interpretasi Tingkat Distraksi Digital
+```
+# Mengubah hasil estimasi dari skala 10–50 ke skala Likert 1–5
+mean_est_likert <- as.numeric(mean_est) / ncol(item)
+
+cat("Estimasi rata-rata (Skala 10-50) =", round(as.numeric(mean_est), 3), "\n")
+cat("Estimasi rata-rata (Skala 1-5) =", round(mean_est_likert, 3), "\n")
+```
+
+
 
 ## Hasil dan Pembahasan
 ### Deskripsi Data
